@@ -15,6 +15,7 @@ export interface ChatResponse {
     output_tokens: number;
   };
   is_error: boolean;
+  compacted?: boolean;
 }
 
 export interface HealthResponse {

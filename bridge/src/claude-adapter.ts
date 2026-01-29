@@ -28,6 +28,7 @@ export class ClaudeAdapter {
     let isError = false;
     let inputTokens = 0;
     let outputTokens = 0;
+    let compacted = false;
 
     try {
       const queryOptions: Record<string, unknown> = {
@@ -58,6 +59,14 @@ export class ClaudeAdapter {
           (message as any).session_id
         ) {
           sessionId = (message as any).session_id;
+        }
+
+        // Detect context compaction
+        if (
+          message.type === "system" &&
+          (message as any).subtype === "compact_boundary"
+        ) {
+          compacted = true;
         }
 
         // Capture result text
@@ -100,6 +109,7 @@ export class ClaudeAdapter {
         output_tokens: outputTokens,
       },
       is_error: isError,
+      ...(compacted && { compacted: true }),
     };
   }
 

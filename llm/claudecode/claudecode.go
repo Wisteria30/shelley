@@ -40,7 +40,8 @@ type bridgeChatResponse struct {
 		InputTokens  uint64 `json:"input_tokens"`
 		OutputTokens uint64 `json:"output_tokens"`
 	} `json:"usage"`
-	IsError bool `json:"is_error"`
+	IsError   bool `json:"is_error"`
+	Compacted bool `json:"compacted"`
 }
 
 // Do sends the last user message to the bridge and returns the result.
@@ -110,6 +111,15 @@ func (s *Service) Do(ctx context.Context, req *llm.Request) (*llm.Response, erro
 
 	end := time.Now()
 
+	inputTokens := bridgeResp.Usage.InputTokens
+	outputTokens := bridgeResp.Usage.OutputTokens
+
+	if bridgeResp.Compacted {
+		// Context was compacted: set input tokens to max so the gauge shows full.
+		inputTokens = uint64(s.TokenContextWindow())
+		outputTokens = 0
+	}
+
 	return &llm.Response{
 		Role: llm.MessageRoleAssistant,
 		Content: []llm.Content{
@@ -120,8 +130,8 @@ func (s *Service) Do(ctx context.Context, req *llm.Request) (*llm.Response, erro
 		},
 		StopReason: llm.StopReasonEndTurn,
 		Usage: llm.Usage{
-			InputTokens:  bridgeResp.Usage.InputTokens,
-			OutputTokens: bridgeResp.Usage.OutputTokens,
+			InputTokens:  inputTokens,
+			OutputTokens: outputTokens,
 			StartTime:    &start,
 			EndTime:      &end,
 		},
