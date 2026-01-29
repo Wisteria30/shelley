@@ -1,6 +1,6 @@
 # Shelley Makefile
 
-.PHONY: build build-linux-aarch64 build-linux-x86 test test-go test-e2e ui serve clean help templates
+.PHONY: build build-linux-aarch64 build-linux-x86 test test-go test-e2e ui serve serve-bridge bridge clean help templates
 
 # Default target
 all: build
@@ -75,6 +75,18 @@ serve: ui
 	@echo "Starting Shelley..."
 	go run ./cmd/shelley serve
 
+# Build the bridge server
+bridge:
+	@cd bridge && npm install --silent && npm run build
+
+# Serve Shelley with Claude Code / Codex bridge (both processes, Ctrl+C kills both)
+serve-bridge: ui bridge
+	@trap 'kill 0' EXIT; \
+	(cd bridge && npm start) & \
+	sleep 2; \
+	CLAUDE_CODE_BRIDGE_URL=http://localhost:9100 go run ./cmd/shelley serve & \
+	wait
+
 # Clean build artifacts
 clean:
 	@echo "Cleaning..."
@@ -101,6 +113,7 @@ help:
 	@echo "  test-e2e-headed  Run E2E tests (visible browser)"
 	@echo "  test-e2e-ui   Open E2E test UI"
 	@echo "  serve         Start Shelley server"
+	@echo "  serve-bridge  Start Bridge + Shelley (Claude Code / Codex)"
 	@echo "  serve-test    Start Shelley with predictable model"
 	@echo "  clean         Clean build artifacts"
 	@echo "  help          Show this help"
