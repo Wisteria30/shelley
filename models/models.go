@@ -28,6 +28,7 @@ const (
 	ProviderGemini    Provider = "gemini"
 	ProviderBuiltIn    Provider = "builtin"
 	ProviderClaudeCode Provider = "claude-code"
+	ProviderCodex      Provider = "codex"
 )
 
 // Model represents a configured LLM model in Shelley
@@ -245,6 +246,22 @@ func All() []Model {
 					HTTPC:     httpc,
 					BridgeURL: config.ClaudeCodeBridgeURL,
 					Model:     "claude-code",
+				}, nil
+			},
+		},
+		{
+			ID:              "codex",
+			Provider:        ProviderCodex,
+			Description:     "Codex CLI (OpenAI)",
+			RequiredEnvVars: []string{"CLAUDE_CODE_BRIDGE_URL"},
+			Factory: func(config *Config, httpc *http.Client) (llm.Service, error) {
+				if config.ClaudeCodeBridgeURL == "" {
+					return nil, fmt.Errorf("codex requires CLAUDE_CODE_BRIDGE_URL")
+				}
+				return &claudecode.Service{
+					HTTPC:     httpc,
+					BridgeURL: config.ClaudeCodeBridgeURL,
+					Model:     "codex",
 				}, nil
 			},
 		},
