@@ -243,14 +243,15 @@ func setupToolSetConfig(llmProvider claudetool.LLMServiceProvider) claudetool.To
 // buildLLMConfig constructs LLMConfig from environment variables and optional config file
 func buildLLMConfig(logger *slog.Logger, configPath, terminalURL, defaultModel string, database *db.DB) *server.LLMConfig {
 	llmCfg := &server.LLMConfig{
-		AnthropicAPIKey: os.Getenv("ANTHROPIC_API_KEY"),
-		OpenAIAPIKey:    os.Getenv("OPENAI_API_KEY"),
-		GeminiAPIKey:    os.Getenv("GEMINI_API_KEY"),
-		FireworksAPIKey: os.Getenv("FIREWORKS_API_KEY"),
-		TerminalURL:     terminalURL,
-		DefaultModel:    defaultModel,
-		DB:              database,
-		Logger:          logger,
+		AnthropicAPIKey:     os.Getenv("ANTHROPIC_API_KEY"),
+		OpenAIAPIKey:        os.Getenv("OPENAI_API_KEY"),
+		GeminiAPIKey:        os.Getenv("GEMINI_API_KEY"),
+		FireworksAPIKey:     os.Getenv("FIREWORKS_API_KEY"),
+		ClaudeCodeBridgeURL: os.Getenv("CLAUDE_CODE_BRIDGE_URL"),
+		TerminalURL:         terminalURL,
+		DefaultModel:        defaultModel,
+		DB:                  database,
+		Logger:              logger,
 	}
 
 	if configPath != "" {

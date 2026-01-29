@@ -21,6 +21,9 @@ type LLMConfig struct {
 	GeminiAPIKey    string
 	FireworksAPIKey string
 
+	// ClaudeCodeBridgeURL is the URL of the Claude Code bridge server (optional)
+	ClaudeCodeBridgeURL string
+
 	// Gateway is the base URL of the LLM gateway (optional)
 	Gateway string
 

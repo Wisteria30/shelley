@@ -28,6 +28,10 @@ ui/playwright-report/
 ui/e2e/screenshots/*
 !ui/e2e/screenshots/.gitkeep
 
+# Bridge build outputs
+bridge/node_modules/
+bridge/dist/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

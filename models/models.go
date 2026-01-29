@@ -11,6 +11,7 @@ import (
 	"shelley.exe.dev/db/generated"
 	"shelley.exe.dev/llm"
 	"shelley.exe.dev/llm/ant"
+	"shelley.exe.dev/llm/claudecode"
 	"shelley.exe.dev/llm/gem"
 	"shelley.exe.dev/llm/llmhttp"
 	"shelley.exe.dev/llm/oai"
@@ -25,7 +26,8 @@ const (
 	ProviderAnthropic Provider = "anthropic"
 	ProviderFireworks Provider = "fireworks"
 	ProviderGemini    Provider = "gemini"
-	ProviderBuiltIn   Provider = "builtin"
+	ProviderBuiltIn    Provider = "builtin"
+	ProviderClaudeCode Provider = "claude-code"
 )
 
 // Model represents a configured LLM model in Shelley
@@ -53,6 +55,9 @@ type Config struct {
 	OpenAIAPIKey    string
 	GeminiAPIKey    string
 	FireworksAPIKey string
+
+	// ClaudeCodeBridgeURL is the URL of the Claude Code bridge server (optional)
+	ClaudeCodeBridgeURL string
 
 	// Gateway is the base URL of the LLM gateway (optional)
 	// If set, model-specific suffixes will be appended
@@ -225,6 +230,22 @@ func All() []Model {
 					svc.URL = url
 				}
 				return svc, nil
+			},
+		},
+		{
+			ID:              "claude-code",
+			Provider:        ProviderClaudeCode,
+			Description:     "Claude Code (Max plan)",
+			RequiredEnvVars: []string{"CLAUDE_CODE_BRIDGE_URL"},
+			Factory: func(config *Config, httpc *http.Client) (llm.Service, error) {
+				if config.ClaudeCodeBridgeURL == "" {
+					return nil, fmt.Errorf("claude-code requires CLAUDE_CODE_BRIDGE_URL")
+				}
+				return &claudecode.Service{
+					HTTPC:     httpc,
+					BridgeURL: config.ClaudeCodeBridgeURL,
+					Model:     "claude-code",
+				}, nil
 			},
 		},
 		{
